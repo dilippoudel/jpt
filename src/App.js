@@ -8,33 +8,23 @@ class App extends Component {
   };
   async componentDidMount(){
   const {data} =  await axios.get(endPoints);
-  const cars = data._embedded.cars;
-  this.setState({carsList: cars});
+  const carsList = data._embedded.cars;
+  this.setState({carsList}); // object destructure
   }
 
+  addCar = async () => {
+  const newCar = {brand : 'nissan', model: '13AXY',  color : 'purple', fuel : 'petrol', year : '1993', price : '16000'}
+  const {data : newcar} = await axios.post(endPoints, newCar);
+  console.log(newcar)
+  const carsList = [newcar, ...this.state.carsList]
+  this.setState({carsList})
+  }
 
-  handleDelete =  index => {
-    // await axios.delete(endPoints)
-     console.log( index)
-   //const newList = this.state.cars.filter((m,i) =>  i !== index);
-    //this.setState({ cars: newList});
+  handleDelete =  async car  => {
+    await axios.delete(car._links.self.href)
+  const newList = this.state.carsList.filter(m =>  m._links.self.href !== car._links.self.href);
+    this.setState({ carsList: newList});
    }
-
-
-   addCar = async () => {
-    const obj = {brand: "a", color : 'Yellow', fuel : 'petrol', model : 'abc', price : '2300', year :'1993'};
-     const {data: cars} = await axios.post(endPoints, obj)
-    const car = [cars, ...this.state.cars]
-    this.setState({ car})
-    console.log(cars);
-   }
-
-
-    updateCar = () => {
-      console.log('Updated')
-
-    }
-
 
   render() {
     return (
@@ -47,23 +37,22 @@ class App extends Component {
             <th>Color</th>
             <th>Fuel</th>
             <th>Model</th>
-            <th>Price</th>
             <th>Year</th>
+            <th>Price</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           
-          {this.state.carsList.map((car, index ) => (
-   <tr key = {index}>
+          {this.state.carsList.map(car  => (
+   <tr key = {car._links.self.href}>
    <td>{car.brand}</td>
    <td>{car.color}</td>
    <td>{car.fuel}</td>
    <td>{car.model}</td>
-   <td>{car.price}</td>
    <td>{car.year}</td>
-   <td><button onClick = {this.handleDelete(index)} className = "btn btn-danger sm">Delete</button></td>
-   <td><button onClick = {this.updateCar} className = "btn btn-secondary sm">update</button></td>
+   <td>{car.price}</td>
+   <td><button  onClick = {()=> this.handleDelete(car)} className = "btn btn-danger sm">Delete</button></td>
  </tr>
 ))}
         </tbody>
