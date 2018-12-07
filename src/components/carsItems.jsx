@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import {ToastContainer} from 'react-toastify';
 import {toast} from 'react-toastify';
-
-
 import config from '../config.json';
 import 'react-toastify/dist/ReactToastify.css';
+import Pagination from './pagination';
+import {paginate} from '../utils/paginate';
+import SeacchBox from './searchBox';
+import { Link } from 'react-router-dom';
 axios.interceptors.response.use(null, error => {
   const expectedErrors = error.response && error.response.status >= 400 && error.response.status < 500;
   if(!expectedErrors) {
@@ -16,7 +18,7 @@ axios.interceptors.response.use(null, error => {
 });
 
 class CarsItems extends Component {
-  state = {carsList : []
+  state = {carsList : [], pageSize : 10, currentPage: 1, searchQuery : ''
   };
   async componentDidMount(){
   const {data} =  await axios.get(config.apiEndPoint);
@@ -31,6 +33,14 @@ class CarsItems extends Component {
   this.setState({carsList})
   toast.success("Car added");
   }
+handlePageChange = (page) => {
+  this.setState({currentPage: page})
+  console.log(page)
+}
+
+
+
+
 
   handleDelete =  async car  => {
   const originalCarsList = this.state.carsList;
@@ -38,6 +48,7 @@ class CarsItems extends Component {
   this.setState({ carsList: newList});
   toast.info("Car deleted");
 
+  
     try {
       await axios.delete(car._links.self.href)      
     }
@@ -51,8 +62,13 @@ class CarsItems extends Component {
    }
 
   render() {
+    const count = this.state.carsList.length;
+    const {currentPage, pageSize, carsList}= this.state;
+    const cars = paginate(carsList, currentPage, pageSize)
     return (
     <main className = "container">
+    <p>There are {count} cars in the database.</p>
+    <SeacchBox value = {this.state.searchQuery} onChange = {this.handleSearch}/>
       <ToastContainer/>
         <button onClick = {this.addCar} className = "btn btn-primary sm">New car</button>
       <table className="table">
@@ -69,9 +85,9 @@ class CarsItems extends Component {
         </thead>
         <tbody>
           
-          {this.state.carsList.map(car  => (
+          {cars.map(car  => (
    <tr key = {car._links.self.href}>
-   <td>{car.brand}</td>
+   <td><Link to = {`/carsItems/${car._links.self.href}`}>{car.brand}</Link></td>
    <td>{car.color}</td>
    <td>{car.fuel}</td>
    <td>{car.model}</td>
@@ -82,6 +98,11 @@ class CarsItems extends Component {
 ))}
         </tbody>
       </table>
+      <Pagination itemsCount = {count}
+       pageSize = {pageSize}
+       currentPage = {currentPage}
+       onPageChange = {this.handlePageChange}
+       />
 
 </main>
     );
