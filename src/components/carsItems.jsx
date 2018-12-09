@@ -87,7 +87,7 @@ handlePageChange = (page) => {
           
           {cars.map(car  => (
    <tr key = {car._links.self.href}>
-   <td><Link to = {`/carsItems/${car._links.self.href}`}>{car.brand}</Link></td>
+   <td><Link to = {`/carform/${car._links.self.href.slice(40)}.self.href`}>{car.brand}</Link></td>
    <td>{car.color}</td>
    <td>{car.fuel}</td>
    <td>{car.model}</td>
@@ -108,5 +108,6 @@ handlePageChange = (page) => {
     );
   }
 }
+
 
 export default CarsItems;

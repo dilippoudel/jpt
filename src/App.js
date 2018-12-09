@@ -15,7 +15,7 @@ class App extends Component {
       <NavBar/>
       <div className = "container">
       <Switch>
-      <Route path="/carform/:_links.self.href" component={CarForm}></Route>
+      <Route path="/carform/:id" component={ CarForm }></Route>
       <Route path="/home" component={Home}></Route>
       <Route path="/carsItems" component={CarsItems}></Route>
       <Route path="/logIn" component={LogIn}></Route>
